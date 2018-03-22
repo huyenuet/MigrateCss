@@ -1,0 +1,12 @@
+body, .java {
+    columns: 2px;
+}
+h1 {
+    color: blue;
+}
+h1:hover {
+   color: white;
+}
+body > ul > li {
+    color: red;
+}
