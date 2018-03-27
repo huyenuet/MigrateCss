@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="com.helger:ph-css:3.9.0" type="repository">
+    <properties maven-id="com.helger:ph-css:3.9.0" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/ph-css-3.9.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ph-commons-5.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/annotations-2.0.3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

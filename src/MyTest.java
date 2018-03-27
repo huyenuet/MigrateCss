@@ -1,7 +1,9 @@
 /**
  * Created by smart on 21/03/2018.
  */
-import com.steadystate.css.dom.CSSRuleListImpl;
+import FpGrowth.FrequentPattern;
+import FpGrowth.Transaction;
+import FpGrowth.FPgrowth;
 import com.steadystate.css.dom.CSSStyleRuleImpl;
 import com.steadystate.css.parser.CSSOMParser;
 import org.w3c.css.sac.InputSource;
@@ -10,49 +12,109 @@ import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.css.*;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 
 public class MyTest {
-    protected static MyTest oParser;
+    private static MyTest oParser;
+    private static ArrayList<String> Selector_List = new ArrayList<>();
+    private static ArrayList<String> Declaration_List = new ArrayList<>();
+    private static ArrayList<Transaction> transactionList;
+    private static Map<String, List<String>> migratedStyleRule = new HashMap<>();
+    private static Map<String, List<String>> MixinSet = new HashMap<>();
+    private static FPgrowth FPgrowth;
+    static Double minSupport = 0.2;
 
-    public static void main(String[] args) throws FileNotFoundException {
-
+    public static void main(String[] args) throws IOException {
+        FPgrowth = new FPgrowth();
         oParser = new MyTest();
+        oParser.parseFileCss();
+        transactionList = FPgrowth.parseToTransaction(Selector_List,Declaration_List);
+        Set<FrequentPattern> frequentPatterns = FPgrowth.findFrequentPattern(
+                minSupport, transactionList);
+        oParser.migrateCSS(frequentPatterns);
+        oParser.writeCSS("migratedCSS");
+    }
+    public void migrateCSS(Set<FrequentPattern> frequentPatterns) {
 
-        if (oParser.parse("index.css")) {
+        /*create mixin*/
+        int mixinIndex = 1;
+        for (FrequentPattern fp: frequentPatterns) {
+            String mixinName = "mixin" + mixinIndex;
+            MixinSet.put(mixinName, fp.getItems());
+            mixinIndex++;
+        }
 
-            System.out.println("Parsing completed OK");
+        /*modified all old style rules
+        * loop through a transaction list
+        * check if a transaction has all frequent items -> remove them from transaction, replace by a mixin
+        * */
+        for (Transaction t: transactionList) {
 
-        } else {
+            ArrayList<String> styleRuleList = new ArrayList<>();
+            styleRuleList.addAll(t.getItems());
+            migratedStyleRule.put(t.getName(),styleRuleList);
 
-            System.out.println("Unable to parse CSS");
+            for (Map.Entry<String,List<String>> entry : MixinSet.entrySet()) {
+                int count = 0;
+                for (String mixinElement : entry.getValue()) {
 
+                    if (t.getItems().contains(mixinElement)){
+                        count++;
+                    }
+                }
+                if (count == entry.getValue().size()) {
+
+                    for (String mixinElement : entry.getValue()) {
+                        if(styleRuleList.contains(mixinElement)) {
+                            styleRuleList.remove(mixinElement);
+                        }
+                    }
+                    styleRuleList.add("@"+entry.getKey());
+                    migratedStyleRule.replace(t.getName(),styleRuleList);
+                    break;
+                }
+            }
         }
     }
-    public boolean parse(String inputPath) throws FileNotFoundException {
+    public void writeCSS(String outputName) throws IOException {
+        FileWriter fileWriter = new FileWriter("./src/Resources/"+outputName+".css");
+        PrintWriter pw = new PrintWriter(fileWriter);
 
-        FileOutputStream out = null;
-        PrintStream ps = null;
-        boolean rtn = false;
+        /*write mixin first*/
+        for (Map.Entry<String, List<String>> entry: MixinSet.entrySet()) {
+            String selectorName = entry.getKey();
+            List<String> declList = entry.getValue();
+            pw.append(selectorName);
+            pw.append(" {");
+            pw.append("\n");
+            for (String decl : declList) {
+                pw.append("   "+decl+";");
+                pw.append("\n");
+            }
+            pw.append("}\n");
+        }
+
+        /*write style rules*/
+        for (Map.Entry<String, List<String>> entry: migratedStyleRule.entrySet()) {
+            String selectorName = entry.getKey();
+            List<String> declList = entry.getValue();
+            pw.append(selectorName);
+            pw.append(" {");
+            pw.append("\n");
+            for (String decl : declList) {
+                pw.append("    "+decl+";");
+                pw.append("\n");
+            }
+            pw.append("}\n");
+        }
+        pw.close();
+    }
+
+    public void parseFileCss() {
+
+        InputStream stream = oParser.getClass().getResourceAsStream("Resources/css/index.css");
 
         try {
-            // cssfile accessed as a resource, so must be in the pkg (in src dir).
-            InputStream stream = oParser.getClass().getResourceAsStream(inputPath);
-
-            // overwrites and existing file contents
-            out = new FileOutputStream("log-2.txt");
-
-            if (out != null) {
-                //log file
-                ps = new PrintStream(out);
-                System.setErr(ps); //redirects stderr to the log file as well
-
-            } else {
-
-                return rtn;
-
-            }
-
             InputSource source = new InputSource(new InputStreamReader(stream));
             CSSOMParser parser = new CSSOMParser();
             // parse and create a stylesheet composition
@@ -62,50 +124,34 @@ public class MyTest {
             // now iterate through the dom and inspect.
 
             CSSRuleList ruleList = stylesheet.getCssRules();
-            ps.println("Number of rules: " + ruleList.getLength());
 
-            for (int i = 0; i < ruleList.getLength(); i++)
-            {
+            for (int i = 0; i < ruleList.getLength(); i++) {
                 CSSRule rule = ruleList.item(i);
                 if (rule instanceof CSSStyleRule) {
-                    CSSStyleRule styleRule = (CSSStyleRule)rule;
-                    ps.println("selector:" + i + ": ");
+                    CSSStyleRule styleRule = (CSSStyleRule) rule;
 
                     if (styleRule instanceof CSSStyleRuleImpl) {
                         CSSStyleRuleImpl styleRuleImpl = (CSSStyleRuleImpl) styleRule;
-                        SelectorList selectorList = styleRuleImpl.getSelectors();
+                        SelectorList selectors = styleRuleImpl.getSelectors();
                         CSSStyleDeclaration styleDeclaration = styleRuleImpl.getStyle();
 
-                        for (int k =0; k < selectorList.getLength(); k++)
-                        {
-                            Selector selector = selectorList.item(k);
-
-                            /*SACSelector sacSelector = new SACSelector();
-                            ArrayList<String> selList = sacSelector.getSelectorOfOneRule(selector);
-                            ps.println(selList.toString());*/
-                        }
-
-                        for (int j = 0; j < styleDeclaration.getLength(); j++)
-                        {
-                            String property = styleDeclaration.item(j);
-                            ps.println("property: " + property);
-                            ps.println("priority: " + styleDeclaration.getPropertyPriority(property));
-                            ps.println("value: " + styleDeclaration.getPropertyCSSValue(property).getCssText());
+                        for (int k = 0; k < selectors.getLength(); k++) {
+                            Selector selector = selectors.item(k);
+                            Selector_List.add(selector.toString());
+                            Declaration_List.add(styleDeclaration.getCssText());
                         }
                     }
-
                 }
             }
 
-            if (out != null) out.close();
-            if (stream != null) stream.close();
-            rtn = true;
-
+            System.out.println("Selector List: \n" + Selector_List);
+            System.out.println("Declaration List: \n" + Declaration_List);
+            System.out.println("done!");
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (ps != null) ps.close();
         }
-        return rtn;
     }
 }

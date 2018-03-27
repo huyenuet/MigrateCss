@@ -16,7 +16,7 @@ public class CSSParserTest {
 
         oParser = new CSSParserTest();
 
-        if (oParser.Parse("index.css")) {
+        if (oParser.Parse("Resources/css/index.css")) {
 
             System.out.println("Parsing completed OK");
 
