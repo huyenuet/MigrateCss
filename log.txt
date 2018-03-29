@@ -1,0 +1,13 @@
+Number of rules: 3
+selector:0: h1
+property: color
+value: blue
+priority: 
+selector:1: h1:hover
+property: color
+value: white
+priority: 
+selector:2: body > ul > li
+property: color
+value: red
+priority: 

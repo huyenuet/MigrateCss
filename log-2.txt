@@ -1,0 +1,23 @@
+Number of rules: 4
+selector:0: 
+property: columns
+priority: 
+value: 2px
+property: color
+priority: 
+value: blue
+property: text-align
+priority: 
+value: inherit
+selector:1: 
+property: color
+priority: 
+value: blue
+selector:2: 
+property: color
+priority: 
+value: white
+selector:3: 
+property: color
+priority: 
+value: red

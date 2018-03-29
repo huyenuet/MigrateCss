@@ -1,0 +1,54 @@
+<component name="libraryTable">
+  <library name="com.google.code.maven-play-plugin.org.apache.commons:commons-javaflow:1066591" type="repository">
+    <properties maven-id="com.google.code.maven-play-plugin.org.apache.commons:commons-javaflow:1066591" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/commons-javaflow-1066591.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-logging-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/bcel-5.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jakarta-regexp-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-jci-core-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-jci-fam-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-logging-api-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-io-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-analysis-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-tree-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-commons-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-util-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ant-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ant-launcher-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-javaflow-1066591.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-logging-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/bcel-5.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jakarta-regexp-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-jci-core-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-jci-fam-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-logging-api-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-io-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-analysis-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-tree-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-commons-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-util-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ant-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ant-launcher-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-javaflow-1066591.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-logging-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/bcel-5.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jakarta-regexp-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-jci-core-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-jci-fam-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-logging-api-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-io-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-analysis-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-tree-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-commons-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-util-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ant-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ant-launcher-1.7.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

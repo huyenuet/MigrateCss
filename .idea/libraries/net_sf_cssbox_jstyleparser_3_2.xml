@@ -8,6 +8,8 @@
       <root url="jar://$PROJECT_DIR$/lib/unbescape-1.1.5.RELEASE.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ideaLibSources/jstyleparser-3.2-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>
