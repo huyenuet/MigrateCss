@@ -1,13 +1,40 @@
-Number of rules: 3
-selector:0: h1
+Number of rules: 6
+selector:0: body, .java
+property: columns
+value: 2px
+priority: 
 property: color
 value: blue
 priority: 
-selector:1: h1:hover
+property: text-align
+value: inherit
+priority: 
+selector:1: h1
+property: color
+value: blue
+priority: 
+selector:2: h1:hover
 property: color
 value: white
 priority: 
-selector:2: body > ul > li
+selector:3: body > ul > li
 property: color
 value: red
+priority: 
+selector:4: .button
+property: color
+value: blue
+priority: 
+property: text-align
+value: inherit
+priority: 
+selector:5: .label
+property: columns
+value: 2px
+priority: 
+property: color
+value: blue
+priority: 
+property: text-align
+value: inherit
 priority: 

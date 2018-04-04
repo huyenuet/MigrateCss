@@ -31,8 +31,10 @@
     <orderEntry type="library" name="org.w3c.css:sac:1.3" level="project" />
     <orderEntry type="library" name="net.sf.cssbox:jstyleparser:3.2" level="project" />
     <orderEntry type="library" name="com.helger:ph-css:3.9.0" level="project" />
-    <orderEntry type="library" name="java" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.7" level="project" />
+    <orderEntry type="library" name="Maven: junit:junit:4.12" level="project" />
+    <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="cz.vutbr.fit.layout:layout-cssbox:0.0.4" level="project" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_FOLDERS">

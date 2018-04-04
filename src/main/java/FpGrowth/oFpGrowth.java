@@ -1,14 +1,18 @@
 package FpGrowth;
 
+import model.Block;
+import model.StyleDeclaration;
+import model.StyleRuleList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.text.Style;
 import java.util.*;
 
 /**
  * Created by smart on 23/03/2018.
  */
-public class FPgrowth {
+public class oFpGrowth {
     private static final String PATTERN_DELIMITER = ";;";
     private Map<String, Integer> itemFrequencies = new HashMap<>();
     private FPtree fpTree;
@@ -17,9 +21,10 @@ public class FPgrowth {
     private Double minSupport;
     private Integer minSupportCount;
     private Integer transactionCount;
-    private ArrayList<Transaction> transactionList;
+    private StyleRuleList S;
+    private ArrayList<String> P;
 
-    private static final Logger log = LoggerFactory.getLogger(FPgrowth.class);
+    private static final Logger log = LoggerFactory.getLogger(oFpGrowth.class);
 
     /*method: findFrequentPattern
     * @param : minSupport
@@ -27,10 +32,10 @@ public class FPgrowth {
     * @param : declarations (in declaration list) is considered as an items set
     * */
 
-    public Set<FrequentPattern> findFrequentPattern(Double minSupport,
-                                                    ArrayList<Transaction> transactionList ) {
+    public Set<FrequentPattern> findFrequentPattern(Double minSupport, StyleRuleList S)
+    {
         this.minSupport = minSupport;
-        this.transactionList = transactionList;
+        this.S = S;
         countFrequencyByWord();
         buildFPTree();
         findFrequentPatterns();
@@ -39,32 +44,13 @@ public class FPgrowth {
         return this.frequentPatterns;
     }
 
-    public ArrayList<Transaction> parseToTransaction(ArrayList<String> selectorList,
-                                                      ArrayList<String> declarationList){
-        ArrayList <Transaction> transactions = new ArrayList<>();
-        int i=0;
-        while (i < selectorList.size()) {
-            Transaction t = new Transaction();
-            t.setName(selectorList.get(i).trim());
-            if (declarationList.size() != 0) {
-                String itemSet = declarationList.get(i);
-                List<String> items = Arrays.asList(itemSet.split(";"));
-                for (int j = 0; j < items.size(); j++) {
-                    items.set(j,items.get(j).trim()); // remove all spaces in both left & right trim
-                }
-                t.setItems(items);
-            }
-            i++;
-            transactions.add(t);
-        }
-        return transactions;
-    }
-
     private void countFrequencyByWord() {
-        this.transactionCount = transactionList.size();
-        int i=0;
-        while (i < transactionList.size()) {
-            for (String item: transactionList.get(i).getItems()) {
+        this.transactionCount = S.size();
+
+        for (Block block: S.getBlocks()) {
+            for (StyleDeclaration styleDecl : block.getStyleDeclarations())
+            {
+                String item = styleDecl.getProperty();
                 if(itemFrequencies.containsKey(item)) {
                     int oldFrequency = itemFrequencies.get(item);
                     itemFrequencies.replace(item,oldFrequency+1);
@@ -73,15 +59,12 @@ public class FPgrowth {
                     itemFrequencies.put(item,1);
                 }
             }
-            i++;
         }
 
         this.minSupportCount = (int) Math.ceil(minSupport * transactionCount);
-        log.debug("minSupport: {}", this.minSupport);
-        log.debug("minSupportCount: {}", this.minSupportCount);
-        log.debug("transactionCount: {}", transactionCount);
 
     }
+
     private void buildFPTree() {
 
         // Add root to FPTree
@@ -93,14 +76,14 @@ public class FPgrowth {
 
         // Iterate over transactions but order items by frequency
         int i=0;
-        while (i < transactionList.size()) {
-            Transaction t = transactionList.get(i);
-            List<String> orderedList = orderItemsByFrequency(t.getItems(),
+        for (Block block : S.getBlocks()) {
+
+            List<String> orderedList = orderItemsByFrequency(block.getProperties(),
                     this.itemFrequencies);
             log.debug("Processing Transaction {}", orderedList);
 
             List<Integer> orderedItemsValues = new ArrayList<>();
-            for (int j = 0; j < t.getItems().size(); j++) {
+            for (int j = 0; j < block.getProperties().size(); j++) {
                 orderedItemsValues.add(1);
             }
 
@@ -116,7 +99,7 @@ public class FPgrowth {
     /*order the items in List decrease by their frequencies
     * param items: items need to be ordered
     * param frequencies: a map represent name of item and respective frequency */
-    
+
     private List<String> orderItemsByFrequency(List<String> items,
                                                Map<String, Integer> frequencies) {
         List<String> orderedList = new LinkedList<>();
@@ -186,10 +169,10 @@ public class FPgrowth {
     }
 
     private void findFrequentPatterns() {
-        fpGrowthStep(this.headerTable, this.frequentPatterns, "");
+        oFpGrowthStep(this.headerTable, this.frequentPatterns, "");
     }
 
-    private void fpGrowthStep(Map<String, FPtree> headerTable,
+    private void oFpGrowthStep(Map<String, FPtree> headerTable,
                               Set<FrequentPattern> frequentPatterns, String base) {
 
         for (String item : headerTable.keySet()) {
@@ -198,7 +181,7 @@ public class FPgrowth {
             String currentPattern = item + PATTERN_DELIMITER + base;
             if (currentPattern.endsWith(PATTERN_DELIMITER))
                 currentPattern = currentPattern.substring(0,
-                        currentPattern.length() - 1);
+                        currentPattern.length() - PATTERN_DELIMITER.length());
 
             // 1. Step: Conditional Patter n Base
             Map<String, Integer> conditionalPatternBase = new HashMap<>();
@@ -223,7 +206,7 @@ public class FPgrowth {
                 }
                 if (conditionalPattern.endsWith(PATTERN_DELIMITER))
                     conditionalPattern = conditionalPattern.substring(0,
-                            conditionalPattern.length() - 1);
+                            conditionalPattern.length() - PATTERN_DELIMITER.length());
 
                 treeNode = treeNode.getNext();
 
@@ -299,7 +282,7 @@ public class FPgrowth {
             }
 
             if (!conditionalTree.getChildren().isEmpty())
-                fpGrowthStep(conditionalHeaderTable,
+                oFpGrowthStep(conditionalHeaderTable,
                         frequentPatterns, currentPattern);
         }
     }
@@ -311,7 +294,7 @@ public class FPgrowth {
     {
         Set <FrequentPattern> filteredFPs = new HashSet<>();
         for (FrequentPattern fp : this.frequentPatterns) {
-            if (fp.getSupportCount() >= 5 && fp.getItems().size() >= 4) {
+            if (fp.getSupportCount() >= 2 && fp.getItems().size() >= 0) {
                 filteredFPs.add(fp);
             }
         }

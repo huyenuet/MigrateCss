@@ -1,11 +1,12 @@
-/**
- * Created by smart on 21/03/2018.
- */
+
 import FpGrowth.FrequentPattern;
 import FpGrowth.Transaction;
-import FpGrowth.FPgrowth;
+import FpGrowth.oFpGrowth;
 import com.steadystate.css.dom.CSSStyleRuleImpl;
 import com.steadystate.css.parser.CSSOMParser;
+import model.Block;
+import model.StyleDeclaration;
+import model.StyleRuleList;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.Selector;
 import org.w3c.css.sac.SelectorList;
@@ -14,29 +15,51 @@ import org.w3c.dom.css.*;
 import java.io.*;
 import java.util.*;
 
-public class MyTest {
-    private static MyTest oParser;
-    private static ArrayList<String> Selector_List = new ArrayList<>();
-    private static ArrayList<String> S = new ArrayList<>();
-    private static ArrayList<String> Declaration_List = new ArrayList<>();
-    private static ArrayList<String> P = new ArrayList<>();
-    private static ArrayList<Transaction> transactionList;
+/**
+ * Created by smart on 31/03/2018.
+ */
+/*MO = Mixin Opportunity*/
+
+public class MO {
+    
+    private static MO parser;
+    private static StyleRuleList styleRuleList = new StyleRuleList();
+    private static ArrayList<String> propertyList = new ArrayList<>();
+    private static List<StyleRuleList> S = new ArrayList<>();
+    private static List<String> P = new ArrayList<>();
     private static Map<String, List<String>> migratedStyleRule = new HashMap<>();
     private static Map<String, List<String>> MixinSet = new HashMap<>();
-    private static FPgrowth FPgrowth;
+    private static oFpGrowth fpGrowth;
     static Double minSupport = 0.05;
 
     public static void main(String[] args) throws IOException {
-        FPgrowth = new FPgrowth();
-        oParser = new MyTest();
-        oParser.parseFileCss("bootstrap.css");
-        transactionList = FPgrowth.parseToTransaction(Selector_List,Declaration_List);
-        Set<FrequentPattern> frequentPatterns = FPgrowth.findFrequentPattern(
-                minSupport, transactionList);
-        oParser.migrateCSS(frequentPatterns);
-        oParser.writeCSS("migratedCSS");
+        fpGrowth = new oFpGrowth();
+        parser = new MO();
+        parser.parseFileCss();
+//        transactionList = FPgrowth.parseToTransaction(styleRuleList,propertyList);
+        Set<FrequentPattern> frequentPatterns = fpGrowth.findFrequentPattern(
+                minSupport, styleRuleList);
+        parser.generateMO(frequentPatterns);
+        parser.writeCSS("migratedCSS");
     }
-    public void migrateCSS(Set<FrequentPattern> frequentPatterns) {
+
+    public void migrationOp (StyleRuleList styleRuleList, Set<FrequentPattern> fps) {
+        int count = 0;
+        StyleRuleList styleRules = new StyleRuleList();
+        for (FrequentPattern fp : fps) {
+            for (Block block : styleRuleList.getBlocks()) {
+                for (String item: fp.getItems()) {
+                    if (block.getProperties().contains(item)) count++;
+                }
+                if (count == fp.getItems().size()) {
+                    styleRules.add(block);
+                }
+            }
+            S.add(styleRules);
+        }
+    }
+
+    public void generateMO(Set<FrequentPattern> frequentPatterns) {
 
         /*create mixin*/
         int mixinIndex = 1;
@@ -50,42 +73,31 @@ public class MyTest {
         * loop through a transaction list
         * check if a transaction has all frequent items -> remove them from transaction, replace by a mixin
         * */
-        for (Transaction t: transactionList) {
-
-            S.add(t.getName());
-            for (String decl : t.getItems()) {
-                if(!P.contains(decl)) {
-                    P.add(decl);
-                }
-            }
-
-            ArrayList<String> styleRuleList = new ArrayList<>();
-            styleRuleList.addAll(t.getItems());
-            migratedStyleRule.put(t.getName(),styleRuleList);
+        for (Block block : styleRuleList.getBlocks()) {
 
             for (Map.Entry<String,List<String>> entry : MixinSet.entrySet()) {
                 int count = 0;
                 for (String mixinElement : entry.getValue()) {
-
-                    if (t.getItems().contains(mixinElement)){
+                    if (block.getProperties().contains(mixinElement)){
                         count++;
                     }
                 }
                 if (count == entry.getValue().size()) {
 
                     for (String mixinElement : entry.getValue()) {
-                        if(styleRuleList.contains(mixinElement)) {
-                            styleRuleList.remove(mixinElement);
+                        if(block.getProperties().contains(mixinElement)) {
+                            styleRuleList.remove(styleRuleList.getBlockByName(mixinElement));
                         }
                     }
-                    styleRuleList.add("@"+entry.getKey());
-                    migratedStyleRule.replace(t.getName(),styleRuleList);
+//                    styleRuleList.add("@"+entry.getKey());
+//                    migratedStyleRule.replace(t.getName(),styleRuleList);
                     break;
                 }
             }
         }
     }
     public void writeCSS(String outputName) throws IOException {
+        System.out.println("Starting write css ...");
         FileWriter fileWriter = new FileWriter("./src/main/resources/"+outputName+".css");
         PrintWriter pw = new PrintWriter(fileWriter);
 
@@ -117,12 +129,14 @@ public class MyTest {
             pw.append("}\n");
         }
         pw.close();
+        System.out.println("finish writing css ...");
     }
 
-    public void parseFileCss(String fileName) {
+    public void parseFileCss() {
 
+        System.out.println("parsing ... Css!");
         try {
-            InputStream stream = oParser.getClass().getResourceAsStream(fileName);
+            InputStream stream = parser.getClass().getResourceAsStream("index.css");
             InputSource source = new InputSource(new InputStreamReader(stream));
             CSSOMParser parser = new CSSOMParser();
             // parse and create a stylesheet composition
@@ -144,16 +158,27 @@ public class MyTest {
                         CSSStyleDeclaration styleDeclaration = styleRuleImpl.getStyle();
 
                         for (int k = 0; k < selectors.getLength(); k++) {
+                            Block block = new Block();
                             Selector selector = selectors.item(k);
-                            Selector_List.add(selector.toString());
-                            Declaration_List.add(styleDeclaration.getCssText());
+
+                            for (int m = 0; m < styleDeclaration.getLength(); m++) {
+                                StyleDeclaration styleDecl = new StyleDeclaration();
+                                String property = styleDeclaration.item(m);
+                                styleDecl.setProperty(property);
+                                styleDecl.setPropertyValue(styleDeclaration.getPropertyCSSValue(property).getCssText());
+                                block.add(styleDecl);
+                                if (!propertyList.contains(property)) {
+                                    propertyList.add(property);
+                                }
+                            }
+                            block.setSelectorName(selector.toString());
+                            styleRuleList.add(block);
                         }
+
                     }
                 }
             }
 
-            System.out.println("Selector List: \n" + Selector_List);
-            System.out.println("Declaration List: \n" + Declaration_List);
             System.out.println("done!");
         }
         catch (FileNotFoundException e) {

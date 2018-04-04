@@ -12,21 +12,16 @@ public class FrequentPattern {
 
 	private Integer supportCount;
 	private Double support;
-	private static final String DELIMITER = ",";
+	private static final String DELIMITER = ";;";
 
 	public FrequentPattern(String items, Integer supportCount, Double support) {
 
-	    // 1. get all rgb item
-		while (items.contains("rgb")) {
-            items = streamItemsContainRgb(items);
-        }
-
-        if (items.contains(",")) {
+        if (items.contains(DELIMITER)) {
             StringTokenizer tokenizer = new StringTokenizer(items, DELIMITER);
             while (tokenizer.hasMoreTokens())
                 this.items.add(tokenizer.nextToken());
         } else {
-            this.items.add(items);
+		    this.items.add(items);
         }
 
 		this.supportCount = supportCount;
@@ -55,8 +50,11 @@ public class FrequentPattern {
         beforeRgbItems = items.substring(0,rgbIndex);
         if (beforeRgbItems.contains(",")) {
             delimIndex = beforeRgbItems.lastIndexOf(',');
-            beforeRgbItems = items.substring(0,delimIndex-1);
+            beforeRgbItems = items.substring(0,delimIndex);
             items = items.substring(delimIndex+1,items.length());
+        }
+        else {
+            beforeRgbItems = "";
         }
 
         // 2. get item rgb
@@ -75,7 +73,7 @@ public class FrequentPattern {
                     if (n == 0) delimIndex = i;
                 }
             }
-            rgbItem = items.substring(0,delimIndex-1);
+            rgbItem = items.substring(0,delimIndex);
             this.items.add(rgbItem);
 
             // 3. get item after rbg(maybe doesnt exist)
@@ -83,7 +81,19 @@ public class FrequentPattern {
         }
 
         // 4. concat items before and after rgb
-        items = beforeRgbItems.concat("," + afterRgbItems);
+        if (beforeRgbItems.equals("") && afterRgbItems.equals("")) {
+            items = "";
+        }
+        else if (!beforeRgbItems.equals("") && afterRgbItems.equals("")) {
+            items = beforeRgbItems;
+        }
+        else if (beforeRgbItems.equals("") && !afterRgbItems.equals("")) {
+            items = afterRgbItems;
+        }
+        else {
+            items = beforeRgbItems.concat("," + afterRgbItems);
+        }
+
         return items;
     }
 
